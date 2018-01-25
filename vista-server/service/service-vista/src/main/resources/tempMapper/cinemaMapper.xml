@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Cinema">
+    <resultMap id="cinemaMap" type="Cinema">
+        <result property="cid" column="cid"/>
+        <result property="cname" column="cname"/>
+        <result property="cadd" column="cadd"/>
+        <result property="lon" column="lon"/>
+        <result property="lat" column="lat"/>
+        <result property="city" column="city"/>
+        <result property="minprice" column="minprice"/>
+        <result property="parkingInfo" column="parkingInfo"/>
+        <result property="loyaltyCode" column="loyaltyCode"/>
+    </resultMap>
+    <resultMap id="cinemaWithSessionMap" type="CinemaWithSession" extends="cinemaMap">
+        <result property="stime" column="stime"/>
+    </resultMap>
+
+    <resultMap id="baseCinemaMap" type="BaseCinema">
+        <result property="cid" column="cid"/>
+        <result property="cname" column="cname"/>
+        <result property="cadd" column="cadd"/>
+        <result property="lon" column="lon"/>
+        <result property="lat" column="lat"/>
+        <result property="loyaltyCode" column="loyaltyCode"/>
+    </resultMap>
+
+    <sql id="columns">
+	cid,cname,cadd,lon,lat,city,parkingInfo,minprice,loyaltyCode
+	</sql>
+
+    <insert id="create" parameterType="Cinema">
+        insert into cinema (<include refid="columns"/>)
+        values
+        (#{cid},#{cname},#{cadd},#{lon},#{lat},#{city},#{parkingInfo},#{minprice},#{loyaltyCode})
+    </insert>
+
+    <insert id="createByList" parameterType="java.util.List">
+        insert into cinema (<include refid="columns"/>)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.cid},#{item.cname},#{item.cadd},#{item.lon},#{item.lat},#{item.city},#{item.parkingInfo},#{item.minprice},#{item.loyaltyCode})
+        </foreach>
+    </insert>
+
+    <delete id="del" parameterType="String">
+		delete from cinema where cid=#{cid}
+	</delete>
+
+
+    <select id="getById" resultMap="cinemaMap" parameterType="String">
+        SELECT
+       *
+        from cinema where cid=#{cid}
+    </select>
+
+    <update id="update" parameterType="Cinema">
+        update cinema
+        <set>
+            <if test="cname!=null">cname=#{cname},</if>
+            <if test="cadd!=null">cadd=#{cadd},</if>
+            <if test="lon!=null">lon=#{lon},</if>
+            <if test="lat!=null">lat=#{lat},</if>
+            <if test="parkingInfo!=null">parkingInfo=#{parkingInfo},</if>
+            <if test="city!=null">city=#{city},</if>
+            <if test="minprice!=null">minprice=#{minprice},</if>
+            <if test="loyaltyCode!=null">loyaltyCode=#{loyaltyCode},</if>
+        </set>
+        where cid=#{cid}
+    </update>
+
+    <update id="updateByList" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update cinema
+            <set>
+                <if test="item.cname!=null">cname=#{item.cname},</if>
+                <if test="item.cadd!=null">cadd=#{item.cadd},</if>
+                <if test="item.lon!=null">lon=#{item.lon},</if>
+                <if test="item.lat!=null">lat=#{item.lat},</if>
+                <if test="item.parkingInfo!=null">parkingInfo=#{item.parkingInfo},</if>
+                <if test="item.city!=null">city=#{item.city},</if>
+                <if test="item.minprice!=null">minprice=#{item.minprice},</if>
+                <if test="item.loyaltyCode!=null">loyaltyCode=#{item.loyaltyCode},</if>
+            </set>
+            where cid=#{item.cid}
+        </foreach>
+    </update>
+
+    <select id="getAll" resultMap="cinemaMap" parameterType="map">
+        select
+        *
+        from cinema
+        where 1=1
+        <if test="cityName!=null">and city=#{cityName}</if>
+    </select>
+
+    <select id="getCinemaWithSession" resultMap="cinemaWithSessionMap" parameterType="map">
+        SELECT aa.* FROM(
+        select c.*,s.stime FRom (
+        SELECT * FROM cinema WHERE 1=1
+        <if test="cityName!=null">and city=#{cityName}</if>
+        ) as c
+        left join
+        (select cid,group_concat( DATE_FORMAT(stime, '%H:%i' ) order by stime) as stime from session
+        where DATE_FORMAT( stime, '%Y-%m-%d')=#{date} and mid=#{mid} AND stime  <![CDATA[ > ]]>  SYSDATE() group by cid)
+        as s on c.cid=s.cid
+        ) as aa where aa.stime IS NOT NULL
+    </select>
+
+    <select id="getBaseAll" resultMap="baseCinemaMap" parameterType="map">
+        select
+        *
+        from cinema
+        where 1=1
+        <if test="cityName!=null">and city=#{cityName}</if>
+        <if test="cname!=null">and cname LIKE CONCAT(CONCAT('%',#{cname}),'%')</if>
+    </select>
+    
+    <select id="selectOne" resultType="String">
+    	select cid from cinema limit 0,1
+    </select>
+</mapper>

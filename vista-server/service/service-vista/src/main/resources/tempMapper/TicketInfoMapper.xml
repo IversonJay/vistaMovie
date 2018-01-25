@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="TicketInfo">
+    <resultMap id="ticketInfoMap" type="TicketInfo">
+        <result property="id" column="id"/>
+        <result property="key" column="key"/>
+        <result property="hopk" column="hopk"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="bookingFee" column="bookingFee"/>
+        <result property="type" column="bookingFee"/>
+        <result property="price" column="price"/>
+    </resultMap>
+    <!-- <resultMap id="baseMovieMap" type="BaseMovie">
+        <result property="mid" column="mid"/>
+        <result property="mname" column="mname"/>
+        <result property="synopsis" column="synopsis"/>
+        <result property="cinemaCount" column="cinemaCount"/>
+        <result property="openingDate" column="openingDate"/>
+        <result property="hOFilmCode" column="hOFilmCode"/>
+        <result property="performer" column="performer"/>
+        <result property="director" column="director"/>
+    </resultMap>
+
+    <resultMap id="cinemaMovieMap" type="CinemaMovie">
+        <result property="mid" column="mid"/>
+        <result property="mname" column="mname"/>
+        <result property="runTime" column="runTime"/>
+        <result property="mtype" column="mtype"/>
+        <result property="hOFilmCode" column="hOFilmCode"/>
+    </resultMap> -->
+
+    <select id="selectAll" resultType="TicketInfo" parameterType="int">
+        select * from ticketinfo
+    </select>
+    
+    <select id="ticketZXData" parameterType="String" resultType="TicketInfo">
+    	select * from ticketinfo where type = #{type}
+    </select>
+    
+    <select id="selectAllTicket" resultType="TicketInfo">
+      select * from ticketinfo
+    </select>
+
+	<select id="selectByKey" parameterType="String" resultType="TicketInfo">
+		select * from ticketinfo where ticketinfo.`key` = #{key}
+	</select>
+	
+	<update id="update" parameterType="TicketInfo">
+		update ticketinfo
+        <set>
+            <if test="hopk!=null">hopk=#{hopk},</if>
+            <if test="name!=null">name=#{name},</if>
+            <if test="description!=null">description=#{description},</if>
+            <if test="bookingFee!=null">bookingFee=#{bookingFee},</if>
+        </set>
+        where `key`=#{key} 
+	</update>
+</mapper>

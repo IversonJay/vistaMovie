@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Concession">
+    <resultMap id="concessionMap" type="concession">
+    	<result property="id" column="id"/>
+        <result property="pid" column="pid"/>
+        <result property="name" column="name"/>
+        <result property="ptype" column="ptype"/>
+        <result property="price" column="price"/>
+        <result property="cid" column="cid"/>
+    </resultMap>
+    
+    
+    <select id="getConcessionList" resultType="Concession" parameterType="map">
+        select * from concession where cid = #{cid} and ptype = #{ptype}
+    </select>
+
+    <select id="selectAll" resultType="Concession" parameterType="map">
+        select * from concession where cid = #{cid} 
+        <if test="ptype != '' and ptype != null">
+        	and ptype = #{ptype}
+        </if>
+    </select>
+    
+    <insert id="insert" parameterType="Concession">
+    	insert into concession(pid, name, ptype, price, cid) values(#{pid}, #{name}, #{ptype}, #{price}, #{cid})
+    </insert>
+    
+    <delete id="del" parameterType="int">
+    	delete from concession where id=#{id}
+    </delete>
+    
+ 	<select id="getOneById" parameterType="int" resultType="Concession">
+ 		select * from concession where id = #{id}
+ 	</select>
+ 	
+ 	<update id="update" parameterType="Concession">
+ 		update concession set pid=#{pid},name=#{name},ptype=#{ptype},price=#{price},cid=#{cid} where id = #{id}
+ 	</update>
+ 	
+ 	<select id="getConcessionByPtype" resultType="Concession" parameterType="int">
+ 		select * from concession where ptype = #{ptype}
+ 	</select>
+      
+</mapper>

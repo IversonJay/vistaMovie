@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Session">
+    <resultMap id="sessionMap" type="Session">
+        <result property="sid" column="sid"/>
+        <result property="cid" column="cid"/>
+        <result property="mid" column="mid"/>
+        <result property="stime" column="stime"/>
+        <result property="sprice" column="sprice"/>
+        <result property="originalPrice" column="originalPrice"/>
+        <result property="stype" column="stype"/>
+        <result property="screenName" column="screenName"/>
+    </resultMap>
+
+    <resultMap id="baseSessionMap" type="BaseSession">
+        <result property="sid" column="sid"/>
+        <result property="stime" column="stime"/>
+        <result property="sprice" column="sprice"/>
+        <result property="originalPrice" column="originalPrice"/>
+        <result property="stype" column="stype"/>
+        <result property="screenName" column="screenName"/>
+    </resultMap>
+    
+    <resultMap id="allSessionMap" type="BaseSession">
+        <result property="sid" column="sid"/>
+        <result property="stime" column="stime"/>
+        <result property="sprice" column="sprice"/>
+        <result property="originalPrice" column="originalPrice"/>
+        <result property="stype" column="stype"/>
+        <result property="screenName" column="screenName"/>
+        <result property="runTime" column="runTime"/>
+    </resultMap>
+
+
+    <sql id="columns">
+	sid,cid,mid,stime,sprice,originalPrice,stype,screenName
+	</sql>
+
+    <insert id="create" parameterType="Session">
+        insert into session (<include refid="columns"/>)
+        values
+        (#{sid},#{cid},#{mid},#{stime},#{sprice},#{originalPrice},#{stype},#{screenName})
+    </insert>
+
+    <insert id="createByList" parameterType="java.util.List">
+        insert into session (<include refid="columns"/>)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.sid},#{item.cid},#{item.mid},#{item.stime},#{item.sprice},#{item.originalPrice},#{item.stype},#{item.screenName})
+        </foreach>
+    </insert>
+
+
+    <delete id="del" parameterType="String">
+		delete from session where sid=#{sid}
+	</delete>
+    <delete id="delAll" parameterType="String">
+        delete from session
+    </delete>
+
+    <select id="getById" resultMap="sessionMap" parameterType="String">
+        SELECT
+        <include refid="columns"/>
+        from session where sid=#{sid}
+    </select>
+
+    <update id="update" parameterType="Session">
+        update session
+        <set>
+            <if test="cid!=null">cid=#{cid},</if>
+            <if test="mid!=null">mid=#{mid},</if>
+            <if test="stime!=null">stime=#{stime},</if>
+            <if test="sprice!=null">sprice=#{sprice},</if>
+            <if test="originalPrice!=null">originalPrice=#{originalPrice},</if>
+            <if test="stype!=null">stype=#{stype},</if>
+            <if test="screenName!=null">screenName=#{screenName},</if>
+        </set>
+        where sid=#{sid}
+    </update>
+
+    <update id="updateByList" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update session
+            <set>
+                <if test="item.cid!=null">cid=#{item.cid},</if>
+                <if test="item.mid!=null">mid=#{item.mid},</if>
+                <if test="item.stime!=null">stime=#{item.stime},</if>
+                <if test="item.sprice!=null">sprice=#{item.sprice},</if>
+                <if test="item.originalPrice!=null">originalPrice=#{item.originalPrice},</if>
+                <if test="item.stype!=null">stype=#{item.stype},</if>
+                <if test="item.screenName!=null">screenName=#{item.screenName},</if>
+            </set>
+            where sid=#{item.sid}
+        </foreach>
+    </update>
+
+    <select id="getAll" resultMap="sessionMap" parameterType="map">
+        select
+        <include refid="columns"/>
+        from session
+    </select>
+
+    <select id="getCinemaCountByMovie" resultType="int" parameterType="String">
+        select count(m.cid) ascount from (select cid from session where mid= #{mid} group by cid) as m
+    </select>
+
+    <select id="getSessionByMovieAndDate" resultMap="baseSessionMap" parameterType="map">
+        <!-- select * from session where cid=#{cid} and mid=#{mid} and stime &gt; #{stime} and stime &lt; #{etime} and sprice is not null -->
+        SELECT
+			s.sid, s.cid, s.mid, SUBSTRING(s.stime, 1, 16) as stime, s.sprice, s.originalPrice, s.screenName, s.stype, s1.merge, m.runTime
+		FROM
+			SESSION s LEFT JOIN sequence s1 on s.mid = s1.mid
+			LEFT JOIN movie m on m.mid = s1.mid
+		WHERE
+			s.cid = #{cid}
+		AND s1.merge = #{merge}
+		AND stime &gt; #{stime} and stime &lt; #{etime}
+		AND sprice IS NOT NULL
+    </select>
+    <select id="getMinPriceByCinema" resultType="int" parameterType="String">
+        select min(m.sprice) mprice from session as m where  cid= #{cid}
+    </select>
+
+    <select id="getSessionByMid" resultType="int" parameterType="String">
+        <!-- select count(*) from session where mid =#{mid}; -->
+        select count(*) from sequence s LEFT JOIN session s1 on s.mid = s1.mid where  merge = #{merge}
+    </select>
+    
+    <select id="get4ShowingDay" parameterType="map" resultType="String">
+    	SELECT
+			SUBSTRING(stime,1,10) as stime
+		FROM
+			SESSION s
+		LEFT JOIN sequence s1 ON s.mid = s1.mid
+		WHERE
+			s.cid = #{cid}
+		AND s1. MERGE = #{merge}
+		GROUP BY SUBSTRING(stime,1,10) HAVING stime &gt;= #{today} limit 0,4
+    </select>
+    
+    <select id="getMergePager" parameterType="String" resultType="Movie">
+    	SELECT
+			m.mid,m.mname,m.performer,m.director,s.merge, s.idx
+		FROM
+			sequence s
+		LEFT JOIN movie m ON s.mid = m.mid
+		LEFT JOIN (SELECT mid,cid from `session` GROUP BY cid,mid) as s1 on s1.mid = m.mid
+		WHERE
+			mstate = #{type} 
+		GROUP BY s.merge
+		ORDER BY
+			if(isnull(s.idx),1,0),s.idx,
+			m.openingDate desc,
+			m.mname 	
+    </select>
+    
+    <select id="getLeastSession" resultMap="sessionMap">
+    	select * from session limit 0,1
+    </select>
+    
+</mapper>

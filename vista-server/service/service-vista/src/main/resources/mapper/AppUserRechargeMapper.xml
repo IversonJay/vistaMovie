@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AppUserRecharge">
+    <resultMap id="appUserRechargeMap" type="AppUserRecharge">
+        <id property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="rechargeAmount" column="recharge_amount"/>
+        <result property="orderStatus" column="order_status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="bz" column="bz"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+    </resultMap>
+    <sql id="insert_columns">
+	order_id,user_id,recharge_amount,order_status,create_time,bz,create_date,modify_date
+	</sql>
+    <insert id="create" parameterType="AppUserRecharge" useGeneratedKeys="true" keyProperty="id">
+        insert into appuserrecharge (<include refid="insert_columns"/>)
+        values
+        (#{orderId},#{userId},#{rechargeAmount},#{orderStatus},#{createTime},#{bz},now(),now())
+    </insert>
+
+    <update id="update" parameterType="AppUserRecharge">
+        update appuserrecharge
+        <set>
+            modify_date=now(),
+            <if test="userId!=null">user_id=#{userId},</if>
+            <if test="orderStatus!=null">order_status=#{orderStatus},</if>
+            <if test="createTime!=null">create_time=#{createTime},</if>
+            <if test="bz!=null">bz=#{bz},</if>
+        </set>
+        where id=#{id}
+    </update>
+    <select id="getById" resultMap="appUserRechargeMap" parameterType="long">
+        SELECT
+        *
+        from appuserrecharge where id=#{id}
+    </select>
+    <select id="getByOrderId" resultMap="appUserRechargeMap" parameterType="long">
+        SELECT
+        *
+        from appuserrecharge where order_id=#{id}
+    </select>
+</mapper>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        	http://www.springframework.org/schema/util
+       		http://www.springframework.org/schema/util/spring-util.xsd
+            http://www.springframework.org/schema/context
+	    	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	    	http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+            http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+	    	">
+    <context:component-scan base-package="com.lhh.vista"/>
+
+    <util:properties id="app" location="classpath:app.properties"/>
+    <!-- MyBatis配置 自己的:com.satsoftec.theframe.packet.SqlSessionFactoryEX MyBatis的:org.mybatis.spring.SqlSessionFactoryBean -->
+
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate"
+          scope="prototype">
+        <constructor-arg index="0" ref="sqlSessionFactory"/>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="com.lhh.vista.common.service.SqlSessionFactoryEX">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocations" value="classpath*:spring/mybatis-config.xml"/>
+        <property name="mapperLocations" value="classpath*:/mapper/*Mapper.xml"/>
+    </bean>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="#{app.jdbcdriver}"/>
+        <property name="url" value="#{app.jdbcurl}"/>
+        <property name="username" value="#{app.jdbcuser}"/>
+        <property name="password" value="#{app.jdbcpass}"/>
+        <property name="maxActive" value="100"/>
+        <property name="maxWait" value="1000"/>
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="validationQuery" value="SELECT 1"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="jsonUtil" class="com.lhh.vista.common.util.JsonUtil"/>
+
+    <bean id="passwordEncoder"
+          class="org.springframework.security.crypto.password.StandardPasswordEncoder">
+        <constructor-arg name="secret" value="com.satsoftec.ipspcp"/>
+    </bean>
+
+    <bean id="freemarkerConfigurer" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="/WEB-INF/view/"/>
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="locale">zh_CN</prop>
+                <prop key="defaultEncoding">UTF-8</prop>
+                <prop key="date_format">yyyy-MM-dd</prop>
+                <prop key="time_format">HH:mm:ss</prop>
+                <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+                <prop key="number_format">0.######</prop>
+                <prop key="auto_import">"common/pageCom.ftl" as pcom</prop>
+            </props>
+        </property>
+    </bean>
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager"/>
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager"/>
+    <aop:aspectj-autoproxy/>
+
+    <bean id="tempSqlSession" class="org.mybatis.spring.SqlSessionTemplate"
+          scope="prototype">
+        <constructor-arg index="0" ref="tempSqlSessionFactory"/>
+    </bean>
+
+    <bean id="tempSqlSessionFactory" class="com.lhh.vista.common.service.SqlSessionFactoryEX">
+        <property name="dataSource" ref="tempDataSource"/>
+        <property name="configLocations" value="classpath*:spring/tempDb-mybatis-config.xml"/>
+        <property name="mapperLocations" value="classpath*:/tempMapper/*Mapper.xml"/>
+    </bean>
+
+    <bean id="tempDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="#{app.tempDbJdbcdriver}"/>
+        <property name="url" value="#{app.tempDbJdbcurl}"/>
+        <property name="username" value="#{app.tempDbJdbcuser}"/>
+        <property name="password" value="#{app.tempDbJdbcpass}"/>
+        <property name="maxActive" value="100"/>
+        <property name="maxWait" value="1000"/>
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="validationQuery" value="SELECT 1"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+
+    <bean class="com.lhh.vista.web.common.ContextListener"/>
+
+    <bean id="vistaApi" class="com.lhh.vista.customer.VistaApi" scope="singleton">
+    </bean>
+
+
+    <bean id="taskExecutor"
+          class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="3"/>
+        <property name="keepAliveSeconds" value="200"/>
+        <property name="maxPoolSize" value="5"/>
+        <property name="queueCapacity" value="25"/>
+    </bean>
+
+
+    <!--定时更新任务配置-->
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <!--QuartzScheduler 延时启动，/秒，应用启动后 QuartzScheduler 再启动-->
+        <property name="startupDelay" value="0"/>
+        <!-- 普通触发器：触发器列表，（可以配置多个任务）-->
+        <property name="triggers">
+            <list>
+                <ref bean="getTicketTaskTrigger"/>
+                <!-- 全员代理定时任务 -->
+                <ref bean="getSessionTaskTrigger"/>
+                <!--品牌俱乐部定时任务 -->
+                <!-- 开场前电影短信提醒 -->
+                <ref bean="getMovieTaskTrigger"/>
+                <!-- 清空每日用户set -->
+                <ref bean="clearEveryDayUsers" />
+            </list>
+        </property>
+        <property name="autoStartup" value="true"/>
+    </bean>
+    <!-- Trigger的配置(全员代理) -->
+    <bean id="getTicketTaskTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="getTicketTaskDetail"/>
+        <property name="cronExpression" value="0 */20 * * * ?"/>
+    </bean>
+    
+    <bean id="getSessionTaskTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="getSessionTaskDetail"/>
+        <property name="cronExpression" value="0 0 1 * * ?"/>
+    </bean>
+    
+    <bean id="getMovieTaskTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="getMovieTaskDetail"/>
+        <property name="cronExpression" value="0 0/1 * * * ?"/>
+    </bean>
+    
+    <bean id="clearEveryDayUsers" class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="clearUsersTaskDetail"/>
+        <property name="cronExpression" value="0 0 0 * * ?"/>
+    </bean>
+
+    <bean id="getTicketTaskDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="getTicketTask"/>
+        <property name="targetMethod" value="doTask"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+
+    <bean id="getSessionTaskDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="getSessionTask"/>
+        <property name="targetMethod" value="doTask"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="getMovieTaskDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="sendMessageTask"/>
+        <property name="targetMethod" value="doTask"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+    <bean id="clearUsersTaskDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="clearUsersTask"/>
+        <property name="targetMethod" value="doTask"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+    
+</beans>

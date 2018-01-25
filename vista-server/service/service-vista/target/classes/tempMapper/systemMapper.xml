@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="System">
+    <update id="initTempDb">
+        DROP TABLE IF EXISTS `cinema`;
+        CREATE TABLE `cinema` (
+          `cid` varchar(10) NOT NULL COMMENT '电影院ID',
+          `cname` varchar(200) NOT NULL COMMENT '电影院名称',
+          `cadd` varchar(100) NOT NULL COMMENT '电影院地址',
+          `lon` double DEFAULT NULL  COMMENT '经度',
+          `lat` double DEFAULT NULL  COMMENT '纬度',
+          `city` varchar(100) COMMENT '电影院城市',
+           `minprice` int DEFAULT -1 COMMENT '最小价格',
+          `parkingInfo` varchar(200)  DEFAULT null COMMENT '状态',
+          `loyaltyCode` int(10)  DEFAULT null COMMENT '映射id'
+        ) ENGINE=myisam DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='电影院';
+
+        DROP TABLE IF EXISTS `movie`;
+        CREATE TABLE `movie` (
+          `mid` varchar(10) NOT NULL COMMENT '电影ID',
+          `mname` varchar(200) NOT NULL COMMENT '电影名称',
+          `synopsis` varchar(500) DEFAULT NULL COMMENT '电影简介',
+          `details` varchar(500) DEFAULT NULL COMMENT '电影详情',
+          `mtype` varchar(50) DEFAULT NULL COMMENT '电影类型信息',
+          `director` varchar(200) DEFAULT NULL COMMENT '导演信息',
+          `performer` varchar(300) DEFAULT NULL COMMENT '演员信息',
+          `runTime` int DEFAULT NULL  COMMENT '时长',
+          `cinemaCount` int DEFAULT 0  COMMENT '上映的电影院数量',
+          `hOFilmCode` varchar(20) DEFAULT 0  COMMENT '上映的电影院数量',
+          `mnamee` varchar(20) DEFAULT NULL  COMMENT '电影英文名称',
+          `mstate` int DEFAULT 0  COMMENT '电影英文名称',
+          `openingDate` varchar(20) DEFAULT NULL  COMMENT '用来获取图片的ID'
+        ) ENGINE=myisam DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='电影';
+
+        DROP TABLE IF EXISTS `session`;
+        CREATE TABLE `session` (
+          `sid` varchar(10) NOT NULL COMMENT '电影场次ID',
+          `cid` varchar(10) NOT NULL COMMENT '电影院ID',
+          `mid` varchar(10) NOT NULL COMMENT '电影ID',
+          `stime` varchar(20) NOT NULL COMMENT '电影场次开始时间',
+          `sprice` int DEFAULT NULL COMMENT '电影价格',
+          `originalPrice` int DEFAULT NULL COMMENT '原始价格',
+          `screenName` varchar(50) NOT NULL COMMENT '影厅名称',
+          `stype` varchar(20) NOT NULL COMMENT '电影场次类型'
+        ) ENGINE=myisam DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='电影场次';
+
+
+        DROP TABLE IF EXISTS `ticket`;
+        CREATE TABLE `ticket` (
+          `sid` varchar(10) NOT NULL COMMENT '电影场次ID',
+          `cid` varchar(10) NOT NULL COMMENT '电影院ID',
+          `area` varchar(10) NOT NULL COMMENT '区域ID',
+          `descr` varchar(255) NOT NULL COMMENT '票详情',
+          `price` int DEFAULT NULL COMMENT '电影价格',
+          `memberPrice` int(11) DEFAULT NULL COMMENT '会员价格',
+		  `salePrice` int(10) DEFAULT NULL COMMENT '会员折扣价格',
+		  `zxPrice` int(10) DEFAULT NULL COMMENT '尊享价格',
+		  `dhqPrice` int(10) DEFAULT NULL COMMENT '兑换券价格'
+        ) ENGINE=myisam DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='电影票信息';
+    </update>
+</mapper>

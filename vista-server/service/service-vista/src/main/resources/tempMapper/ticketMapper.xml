@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Ticket">
+    <resultMap id="ticketMap" type="Ticket">
+        <result property="cid" column="cid"/>
+        <result property="sid" column="sid"/>
+        <result property="area" column="area"/>
+        <result property="desc" column="descr"/>
+        <result property="price" column="price"/>
+        <result property="memberPrice" column="memberPrice"/>
+        <result property="salePrice" column="salePrice"/>
+        <result property="zxPrice" column="zxPrice"/>
+        <result property="dhqPrice" column="dhqPrice"/>
+    </resultMap>
+
+    <sql id="columns">
+	cid,sid,area,descr,price,memberPrice,salePrice,zxPrice,dhqPrice
+	</sql>
+
+    <insert id="create" parameterType="Ticket">
+        insert into ticket (<include refid="columns"/>)
+        values
+        (#{cid},#{sid},#{area},#{desc},#{price},#{memberPrice},#{salePrice},#{zxPrice},#{dhqPrice})
+    </insert>
+
+    <select id="get" resultMap="ticketMap" parameterType="map">
+        SELECT
+        <include refid="columns"/>
+        from ticket where cid=#{cid} and sid=#{sid} and area=#{area}
+    </select>
+
+    <update id="update" parameterType="Ticket">
+        update ticket
+        <set>
+            <if test="price!=null">price=#{price},</if>
+            <if test="memberPrice!=null">memberPrice=#{memberPrice},</if>
+            <if test="salePrice!=null">salePrice=#{salePrice},</if>
+            <if test="zxPrice!=null">zxPrice=#{zxPrice},</if>
+            <if test="dhqPrice!=null">dhqPrice=#{dhqPrice},</if>
+        </set>
+        where cid=#{cid} and sid=#{sid} and area=#{area}
+    </update>
+
+    <select id="getAll" resultMap="ticketMap" parameterType="map">
+        select
+        <include refid="columns"/>
+        from ticket where cid=#{cid} and sid=#{sid}
+    </select>
+
+    <delete id="delAll" parameterType="map">
+        delete from ticket where cid=#{cid} and sid=#{sid}
+    </delete>
+    
+    
+    <select id="getTicketByCS" resultMap="ticketMap" parameterType="map">
+        select
+        <include refid="columns"/>
+        from ticket where cid=#{cid} and sid=#{sid} limit 0,1
+    </select>
+</mapper>

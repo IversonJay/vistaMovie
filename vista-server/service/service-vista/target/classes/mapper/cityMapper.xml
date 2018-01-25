@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="City">
+    <resultMap id="cityMap" type="City">
+        <id property="id" column="id"/>
+        <result property="cityName" column="cityName"/>
+        <result property="lat" column="lat"/>
+        <result property="lon" column="lon"/>
+        <result property="pinyin" column="pinyin"/>
+        <result property="ename" column="ename"/>
+        <result property="hot" column="hot"/>
+        <result property="createDate" column="createDate"/>
+        <result property="modifyDate" column="modifyDate"/>
+    </resultMap>
+
+    <resultMap id="baseCityMap" type="BaseCity">
+        <id property="id" column="id"/>
+        <result property="cityName" column="cityName"/>
+        <result property="lat" column="lat"/>
+        <result property="lon" column="lon"/>
+        <result property="pinyin" column="pinyin"/>
+        <result property="hot" column="hot"/>
+    </resultMap>
+
+    <sql id="insert_columns">
+	cityName,ename,lat,lon,pinyin,hot,createDate,modifyDate
+	</sql>
+
+    <sql id="select_columns">
+       id ,cityName,ename,lat,lon,pinyin,hot,createDate,modifyDate
+    </sql>
+
+    <insert id="create" parameterType="City" useGeneratedKeys="true" keyProperty="id">
+        insert into city (<include refid="insert_columns"/>)
+        values
+        (#{cityName},#{ename},#{lat},#{lon},#{pinyin},#{hot},now(),now())
+    </insert>
+
+
+    <delete id="del" parameterType="long">
+		delete from city where id=#{id}
+	</delete>
+
+
+    <select id="getById" resultMap="cityMap" parameterType="long">
+        SELECT
+        <include refid="select_columns"/>
+        from city where id=#{id}
+    </select>
+
+    <update id="update" parameterType="City">
+        update city
+        <set>
+            modifyDate=now(),
+            <if test="cityName!=null">cityName=#{cityName},</if>
+            <if test="ename!=null">ename=#{ename},</if>
+            <if test="lat!=null">lat=#{lat},</if>
+            <if test="lon!=null">lon=#{lon},</if>
+            <if test="pinyin!=null">pinyin=#{pinyin},</if>
+            <if test="hot!=null">hot=#{hot},</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="getAll" resultMap="cityMap" parameterType="map">
+        select
+        <include refid="select_columns"/>
+        from city
+    </select>
+    <select id="getBaseAll" resultMap="baseCityMap" parameterType="map">
+        select
+        <include refid="select_columns"/>
+        from city
+        order by pinyin
+    </select>
+
+
+	<select id="getBaseCityAll" resultMap="baseCityMap" parameterType="map">
+        select
+        <include refid="select_columns"/>
+        from city
+        <if test="name!='' and name!=null">
+        	where ename LIKE CONCAT(CONCAT('%',#{name}),'%') or cityName LIKE CONCAT(CONCAT('%',#{name}),'%')
+        </if>
+        order by pinyin
+    </select>
+
+    <select id="getLatelyCity" resultMap="cityMap" parameterType="map">
+       SELECT *,ROUND(6378.138*2* ASIN(SQRT(POW(SIN((lat* PI()/180-(#{lat}*1)*
+            PI()/180)/2),2)+ COS(lat* PI()/180)* COS((36*1)* PI()/180)* POW(SIN((lon*
+            PI()/180-(#{lon}*1)* PI()/180)/2),2)))*1000) as dis
+            FROM city order by dis limit 1
+    </select>
+    
+    <select id="getCityByName" resultMap="cityMap" parameterType="String">
+    	select * from city where cityName = #{cityName}
+    </select>
+</mapper>

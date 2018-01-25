@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <typeAliases>
+        <typeAlias alias="Cinema" type="com.lhh.vista.temp.model.Cinema"/>
+        <typeAlias alias="Movie" type="com.lhh.vista.temp.model.Movie"/>
+        <typeAlias alias="Session" type="com.lhh.vista.temp.model.Session"/>
+        <typeAlias alias="Ticket" type="com.lhh.vista.temp.model.Ticket"/>
+        <typeAlias alias="Sequence" type="com.lhh.vista.temp.model.Sequence"/>
+        <typeAlias alias="TicketInfo" type="com.lhh.vista.temp.model.TicketInfo"/>
+        <typeAlias alias="Mtype" type="com.lhh.vista.temp.model.Mtype"/>
+        <typeAlias alias="Concession" type="com.lhh.vista.temp.model.Concession"/>
+        <typeAlias alias="Statistics" type="com.lhh.vista.temp.model.Statistics"/>
+
+        <typeAlias alias="BaseCinema" type="com.lhh.vista.temp.dto.BaseCinema"/>
+        <typeAlias alias="BaseMovie" type="com.lhh.vista.temp.dto.BaseMovie"/>
+        <typeAlias alias="CinemaMovie" type="com.lhh.vista.temp.dto.CinemaMovie"/>
+        <typeAlias alias="BaseSession" type="com.lhh.vista.temp.dto.BaseSession"/>
+        <typeAlias alias="CinemaWithSession" type="com.lhh.vista.temp.dto.CinemaWithSession"/>
+    </typeAliases>
+</configuration>

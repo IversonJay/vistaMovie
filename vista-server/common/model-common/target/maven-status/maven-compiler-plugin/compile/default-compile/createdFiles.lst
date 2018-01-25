@@ -1,0 +1,6 @@
+com\lhh\vista\common\model\PagerRequest.class
+com\lhh\vista\common\model\PagerResponse.class
+com\lhh\vista\common\model\BaseResult.class
+com\lhh\vista\common\model\BaseModelL.class
+com\lhh\vista\common\model\BaseModelI.class
+com\lhh\vista\common\model\ResponseResult.class

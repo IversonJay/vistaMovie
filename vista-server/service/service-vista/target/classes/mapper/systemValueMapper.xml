@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SystemValue">
+    <resultMap id="systemValueMap" type="SystemValue">
+        <result property="key" column="tkey"/>
+        <result property="value" column="tvalue"/>
+    </resultMap>
+
+    <sql id="columns">
+	tkey,tvalue
+	</sql>
+
+    <insert id="create" parameterType="SystemValue">
+        insert into systemValue (<include refid="columns"/>)
+        values
+        (#{key},#{value})
+    </insert>
+
+    <select id="getByKey" resultMap="systemValueMap" parameterType="long">
+        SELECT
+        <include refid="columns"/>
+        from systemValue where tkey=#{key}
+    </select>
+
+    <update id="update" parameterType="SystemValue">
+        update systemValue
+        set tvalue=#{value}
+        where tkey=#{key}
+    </update>
+
+
+    <select id="getAll" resultMap="systemValueMap">
+        SELECT
+       *
+        from systemValue
+    </select>
+</mapper>

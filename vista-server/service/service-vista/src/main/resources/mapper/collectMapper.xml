@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Collect">
+    <resultMap id="collectMap" type="Collect">
+        <id property="id" column="id"/>
+        <result property="collectType" column="collectType"/>
+        <result property="collectId" column="collectId"/>
+        <result property="userId" column="userId"/>
+        <result property="createDate" column="createDate"/>
+        <result property="modifyDate" column="modifyDate"/>
+    </resultMap>
+
+    <sql id="insert_columns">
+        collectType,collectId,userId,createDate,modifyDate
+    </sql>
+
+    <sql id="select_columns">
+        id,collectName,collectType,collectId,userId,createDate,modifyDate
+    </sql>
+
+    <insert id="create" parameterType="Collect" useGeneratedKeys="true" keyProperty="id">
+        insert into collect (<include refid="insert_columns"/>)
+        values
+        (#{collectType},#{collectId},#{userId},now(),now())
+    </insert>
+
+
+    <delete id="del" parameterType="long">
+        delete from collect where collectId=#{collectId} and collectType=#{collectType} and userId=#{userId}
+    </delete>
+
+
+    <select id="get" resultMap="collectMap" parameterType="map">
+        SELECT
+        <include refid="select_columns"/>
+        from collect where collectId=#{collectId} and collectType=#{collectType} and userId=#{userId}
+    </select>
+
+    <update id="update" parameterType="Collect">
+        update collect
+        <set>
+            modifyDate=now(),
+            <if test="collectName!=null">collectName=#{collectName},</if>
+            <if test="collectType!=null">collectType=#{collectType},</if>
+            <if test="collectId!=null">collectId=#{collectId},</if>
+            <if test="userId!=null">userId=#{userId},</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="getAll" resultMap="collectMap" parameterType="map">
+        select
+        <include refid="select_columns"/>
+        from collect where collectType=#{collectType} and userId=#{userId}
+    </select>
+</mapper>

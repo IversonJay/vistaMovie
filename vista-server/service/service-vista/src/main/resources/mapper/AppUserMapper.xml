@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="AppUser">
+    <resultMap id="BaseResultMap" type="AppUser">
+        <result column="memberId" property="memberId"/>
+        <result column="userHead" property="userHead"/>
+        <result column="nickName" property="nickName"/>
+        <result column="token" property="token"/>
+        <result column="dcinema" property="dcinema"/>
+        <result column="mphone" property="mphone"/>
+        <result column="sex" property="sex"/>
+        <result column="qqmark" property="qqmark"/>
+        <result column="pin" property="pin"/>
+        <result column="clubid" property="clubid"/>
+    </resultMap>
+    <insert id="insert" parameterType="AppUser" useGeneratedKeys="true" keyProperty="id">
+      insert into appUser (memberId, userHead,nickName,token,dcinema,mphone, pin, clubid)
+      values (#{memberId}, #{userHead},  #{nickName},  #{token},  #{dcinema}, #{mphone}, #{pin}, #{clubid})
+    </insert>
+
+
+    <select id="getByMemberId" parameterType="String" resultMap="BaseResultMap">
+        SELECT * FROM appUser where memberId=#{memberId}
+    </select>
+
+    <select id="getByMphone" parameterType="String" resultMap="BaseResultMap">
+        SELECT * FROM appUser where mphone=#{mphone}
+    </select>
+
+    <select id="getByToken" parameterType="String" resultMap="BaseResultMap">
+        SELECT * FROM appUser where token=#{token}
+    </select>
+
+    <update id="update" parameterType="AppUser">
+        update appUser
+        <set>
+            <if test="userHead!=null">userHead = #{userHead},</if>
+            <if test="nickName!=null">nickName = #{nickName},</if>
+            <if test="mphone!=null">mphone = #{mphone},</if>
+            <if test="token!=null">token = #{token},</if>
+            <if test="dcinema!=null">dcinema = #{dcinema},</if>
+            <if test="sex!=null">sex = #{sex},</if>
+            <if test="qqmark!=null">qqmark = #{qqmark},</if>
+			<if test="pin!=null">pin = #{pin},</if>
+			<if test="clubid!=null">clubid = #{clubid},</if>
+        </set>
+        where memberId=#{memberId}
+    </update>
+
+
+    <parameterMap type="java.util.Map" id="getNextCardIdMap">
+        <parameter property="tvalue" mode="OUT" jdbcType="BIGINT"/>
+    </parameterMap>
+
+    <select id="GetNextCardId" parameterMap="getNextCardIdMap" statementType="CALLABLE">
+        CALL GetNextCardId(?)
+    </select>
+</mapper>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Movie">
+    <resultMap id="movieMap" type="Movie">
+        <result property="mid" column="mid"/>
+        <result property="mname" column="mname"/>
+        <result property="synopsis" column="synopsis"/>
+        <result property="details" column="details"/>
+        <result property="director" column="director"/>
+        <result property="performer" column="performer"/>
+        <result property="mtype" column="mtype"/>
+        <result property="runTime" column="runTime"/>
+        <result property="cinemaCount" column="cinemaCount"/>
+        <result property="openingDate" column="openingDate"/>
+        <result property="hOFilmCode" column="hOFilmCode"/>
+        <result property="mnamee" column="hOFilmCode"/>
+
+    </resultMap>
+    <resultMap id="baseMovieMap" type="BaseMovie">
+        <result property="mid" column="mid"/>
+        <result property="mname" column="mname"/>
+        <result property="synopsis" column="synopsis"/>
+        <result property="cinemaCount" column="cinemaCount"/>
+        <result property="openingDate" column="openingDate"/>
+        <result property="hOFilmCode" column="hOFilmCode"/>
+        <result property="performer" column="performer"/>
+        <result property="director" column="director"/>
+        
+        <result property="type" column="type"/>
+    </resultMap>
+
+    <resultMap id="cinemaMovieMap" type="CinemaMovie">
+        <result property="mid" column="mid"/>
+        <result property="mname" column="mname"/>
+        <result property="runTime" column="runTime"/>
+        <result property="mtype" column="mtype"/>
+        <result property="hOFilmCode" column="hOFilmCode"/>
+    </resultMap>
+    <sql id="columns">
+	mid,mname,synopsis,details,director,performer,mtype,runTime,openingDate,cinemaCount,hOFilmCode,mnamee
+	</sql>
+
+    <insert id="create" parameterType="Movie">
+        insert into movie (<include refid="columns"/>)
+        values
+        (#{mid},#{mname},#{synopsis},#{details},#{director},#{performer},#{mtype},#{runTime},#{openingDate},#{cinemaCount},#{hOFilmCode},#{mnamee})
+    </insert>
+
+    <insert id="createByList" parameterType="java.util.List">
+        insert into movie (<include refid="columns"/>)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.mid},#{item.mname},#{item.synopsis},#{item.details},#{item.director},#{item.performer},#{item.mtype},#{item.runTime},#{item.openingDate},#{item.cinemaCount},#{item.hOFilmCode},#{item.mnamee})
+        </foreach>
+    </insert>
+
+    <delete id="del" parameterType="String">
+		delete from movie where mid=#{mid}
+	</delete>
+
+
+    <select id="getById" resultMap="movieMap" parameterType="String">
+        <!-- SELECT   *  from movie where mid=#{mid} -->
+        SELECT * from movie where mid = (select mid from sequence where merge = #{merge} limit 0,1)
+    </select>
+    
+    <select id="get4SessionById" parameterType="String" resultMap="movieMap">
+    	SELECT * from movie where mid=#{mid}
+    </select>
+
+    <update id="update" parameterType="Movie">
+        update movie
+        <set>
+            <if test="mname!=null">mname=#{mname},</if>
+            <if test="synopsis!=null">synopsis=#{synopsis},</if>
+            <if test="details!=null">details=#{details},</if>
+            <if test="director!=null">director=#{director},</if>
+            <if test="performer!=null">performer=#{performer},</if>
+            <if test="mtype!=null">mtype=#{mtype},</if>
+            <if test="runTime!=null">runTime=#{runTime},</if>
+            <if test="openingDate!=null">openingDate=#{openingDate},</if>
+            <if test="cinemaCount!=null">cinemaCount=#{cinemaCount},</if>
+            <if test="hOFilmCode!=null">hOFilmCode=#{hOFilmCode},</if>
+            <if test="mnamee!=null">mnamee=#{mnamee},</if>
+            <if test="mstate!=null">mstate=#{mstate},</if>
+        </set>
+        where mid=#{mid}
+    </update>
+
+    <update id="updateByList" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update movie
+            <set>
+                <if test="item.mname!=null">mname=#{item.mname},</if>
+                <if test="item.synopsis!=null">synopsis=#{item.synopsis},</if>
+                <if test="item.details!=null">details=#{item.details},</if>
+                <if test="item.director!=null">director=#{item.director},</if>
+                <if test="item.performer!=null">performer=#{item.performer},</if>
+                <if test="item.mtype!=null">mtype=#{item.mtype},</if>
+                <if test="item.runTime!=null">runTime=#{item.runTime},</if>
+                <if test="item.openingDate!=null">openingDate=#{item.openingDate},</if>
+                <if test="item.cinemaCount!=null">cinemaCount=#{item.cinemaCount},</if>
+                <if test="item.hOFilmCode!=null">hOFilmCode=#{item.hOFilmCode},</if>
+                <if test="item.mnamee!=null">mnamee=#{item.mnamee},</if>
+                <if test="item.mstate!=null">mstate=#{item.mstate},</if>
+            </set>
+            where mid=#{item.mid}
+        </foreach>
+    </update>
+
+    <select id="getAll" resultMap="movieMap" parameterType="map">
+        select   * from movie
+    </select>
+
+    <select id="getRecentBest" resultMap="baseMovieMap" parameterType="String">
+       <!--  select
+        mid,mname,synopsis,cinemaCount,hOFilmCode,performer,director
+        from movie where  mstate=1 -->
+        SELECT
+			m.mid,m.mname,m.synopsis,m.cinemaCount,m.hOFilmCode,m.performer,m.director,s.merge,m.runTime
+		FROM
+			sequence s
+		LEFT JOIN movie m ON s.mid = m.mid
+		LEFT JOIN (SELECT mid,cid from `session` GROUP BY cid,mid) as s1 on s1.mid = m.mid
+		WHERE
+			mstate = 1 and s1.cid = #{cid}
+		GROUP BY s.merge
+		ORDER BY
+			if(isnull(s.idx),1,0),s.idx,
+			m.openingDate desc
+    </select>
+    <select id="getSoonCome" resultMap="baseMovieMap" parameterType="String">
+        <!-- select
+        mid,mname,synopsis,openingDate,cinemaCount,hOFilmCode,performer,director
+        from movie where   mstate=2 -->
+        SELECT
+			m.mid,m.mname,m.synopsis,m.cinemaCount,m.hOFilmCode,m.performer,m.director,s.merge,m.runTime
+		FROM
+			sequence s
+		LEFT JOIN movie m ON s.mid = m.mid
+		LEFT JOIN (SELECT mid,cid from `session` GROUP BY cid,mid) as s1 on s1.mid = m.mid
+		WHERE
+			mstate = 2
+		GROUP BY s.merge
+		ORDER BY
+			if(isnull(s.idx),1,0),s.idx,
+			m.openingDate desc
+    </select>
+     
+    <select id="getMovieAll" resultMap="baseMovieMap" parameterType="map">
+        <!-- select
+        mid,mname,synopsis,openingDate,cinemaCount,hOFilmCode,performer,director
+        from movie where   mstate=2 -->
+        SELECT
+			m.mid,substring_index(m.mname,'（',1) as mname,m.synopsis,m.cinemaCount,m.hOFilmCode,m.performer,m.director,s.merge,m.runTime
+		FROM
+			sequence s
+		LEFT JOIN movie m ON s.mid = m.mid
+		LEFT JOIN (SELECT mid,cid from `session` GROUP BY cid,mid) as s1 on s1.mid = m.mid
+		<if test="type == 0">
+			WHERE s1.cid = #{cid}
+		</if>
+		GROUP BY s.merge
+		ORDER BY
+			if(isnull(s.idx),1,0),s.idx,
+			m.openingDate desc
+    </select>
+
+    <select id="getMovieByCinemaId" resultMap="cinemaMovieMap" parameterType="String">
+         select mid,mname,mtype,runTime,hOFilmCode from movie where mid in(select distinct mid from session where cid=#{cid});
+    </select>
+
+    <update id="chongzhiState" parameterType="Movie">
+        update movie set mstate=0 , cinemaCount=0
+    </update>
+
+    <select id="search" resultMap="baseMovieMap" parameterType="map">
+        select m.*, s.`merge`, s.type from sequence s LEFT JOIN movie m  on s.mid = m.mid 
+        WHERE m.mname LIKE CONCAT(CONCAT('%',#{mname}),'%')
+        OR m.director LIKE CONCAT(CONCAT('%',#{mark}),'%')
+        OR m.performer LIKE CONCAT(CONCAT('%',#{mark}),'%')
+        group by s.merge
+        limit 10
+    </select>
+</mapper>

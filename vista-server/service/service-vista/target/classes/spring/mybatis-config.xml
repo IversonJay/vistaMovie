@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <typeAliases>
+        <typeAlias alias="Manager" type="com.lhh.vista.service.model.Manager"/>
+        <typeAlias alias="City" type="com.lhh.vista.service.model.City"/>
+        <typeAlias alias="Roll" type="com.lhh.vista.service.model.Roll"/>
+        <typeAlias alias="Activity" type="com.lhh.vista.service.model.Activity"/>
+        <typeAlias alias="AppUser" type="com.lhh.vista.service.model.AppUser"/>
+        <typeAlias alias="AppUserOrder" type="com.lhh.vista.service.model.AppUserOrder"/>
+        <typeAlias alias="SystemValue" type="com.lhh.vista.service.model.SystemValue"/>
+        <typeAlias alias="AppUserRecharge" type="com.lhh.vista.service.model.AppUserRecharge"/>
+        <typeAlias alias="RewardControl" type="com.lhh.vista.service.model.RewardControl"/>
+        <typeAlias alias="AppUserReward" type="com.lhh.vista.service.model.AppUserReward"/>
+         <typeAlias alias="Ads" type="com.lhh.vista.service.model.Ads"/>
+
+        <typeAlias alias="Collect" type="com.lhh.vista.service.model.Collect"/>
+
+        <typeAlias alias="BaseCity" type="com.lhh.vista.service.dto.BaseCity"/>
+        <typeAlias alias="BaseRoll" type="com.lhh.vista.service.dto.BaseRoll"/>
+        <typeAlias alias="BaseActivity" type="com.lhh.vista.service.dto.BaseActivity"/>
+        <typeAlias alias="BaseUserOrder" type="com.lhh.vista.service.dto.BaseUserOrder"/>
+        <typeAlias alias="BaseCollect" type="com.lhh.vista.service.dto.BaseCollect"/>
+    </typeAliases>
+</configuration>

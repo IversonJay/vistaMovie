@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Activity">
+    <resultMap id="activityMap" type="Activity">
+        <id property="id" column="id"/>
+        <result property="aname" column="aname"/>
+        <result property="acover" column="acover"/>
+        <result property="stime" column="stime"/>
+        <result property="etime" column="etime"/>
+        <result property="content" column="content"/>
+        <result property="state" column="state"/>
+        <result property="createDate" column="createDate"/>
+        <result property="modifyDate" column="modifyDate"/>
+    </resultMap>
+
+    <resultMap id="baseActivityMap" type="BaseActivity">
+        <id property="id" column="id"/>
+        <result property="aname" column="aname"/>
+        <result property="acover" column="acover"/>
+        <result property="etime" column="etime"/>
+    </resultMap>
+
+    <sql id="insert_columns">
+	aname,acover,stime,etime,content,state,createDate,modifyDate
+	</sql>
+
+    <sql id="select_columns">
+       id ,aname,acover,stime,etime,content,state,createDate,modifyDate
+    </sql>
+
+    <insert id="create" parameterType="Activity" useGeneratedKeys="true" keyProperty="id">
+        insert into activity (<include refid="insert_columns"/>)
+        values
+        (#{aname},#{acover},#{stime},#{etime},#{content},#{state},now(),now())
+    </insert>
+
+
+    <delete id="del" parameterType="long">
+		delete from activity where id=#{id}
+	</delete>
+
+
+    <select id="getById" resultMap="activityMap" parameterType="long">
+        SELECT
+        <include refid="select_columns"/>
+        from activity where id=#{id}
+    </select>
+
+    <update id="update" parameterType="Activity">
+        update activity
+        <set>
+            modifyDate=now(),
+            <if test="aname!=null">aname=#{aname},</if>
+            <if test="acover!=null">acover=#{acover},</if>
+            <if test="stime!=null">stime=#{stime},</if>
+            <if test="etime!=null">etime=#{etime},</if>
+            <if test="content!=null">content=#{content},</if>
+            <if test="state!=null">state=#{state},</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="getAll" resultMap="activityMap" parameterType="map">
+        select
+        <include refid="select_columns"/>
+        from activity
+    </select>
+    <select id="getBaseAll" resultMap="baseActivityMap" parameterType="map">
+        select
+        <include refid="select_columns"/>
+        from activity
+        where 1=1
+        <if test="stime!=null">and stime &lt; #{stime}</if>
+        <if test="state!=null">and state=#{state}</if>
+    </select>
+</mapper>

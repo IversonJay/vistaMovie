@@ -1,0 +1,15 @@
+.icon-theme {
+	background: url('micons/theme.png') no-repeat center center;
+}
+
+.icon-control {
+	background: url('micons/control.png') no-repeat center center;
+}
+
+.icon-nav {
+	background: url('micons/nav.png') no-repeat center center;
+}
+
+.icon-home {
+	background: url('micons/home.gif') no-repeat center center;
+}

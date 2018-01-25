@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RewardControl">
+    <resultMap id="rewardControlMap" type="RewardControl">
+        <result property="rid" column="rid"/>
+        <result property="rtype" column="rtype"/>
+        <result property="rchance" column="rchance"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+
+    <select id="getRewardIdsByType" resultMap="rewardControlMap" parameterType="int">
+        select * from rewardControl
+        where rtype=#{type}
+    </select>
+
+    <select id="getAll" resultMap="rewardControlMap" parameterType="map">
+        select * from rewardControl
+        where 1=1
+        <if test="rtype!=null">and rtype=#{rtype}</if>
+    </select>
+
+    <insert id="create" parameterType="RewardControl">
+        insert into rewardControl (rid,rtype,rchance,remark)
+        values
+        (#{rid},#{rtype},#{rchance},#{remark})
+    </insert>
+
+    <update id="update" parameterType="RewardControl">
+        update rewardControl
+        <set>
+            <if test="rchance!=null">rchance=#{rchance},</if>
+            <if test="remark!=null">remark=#{remark},</if>
+        </set>
+        where rtype=#{rtype} and rid=#{rid}
+    </update>
+
+    <delete id="del" parameterType="map">
+        delete from rewardControl where rtype=#{rtype} and rid=#{rid}
+    </delete>
+
+    <select id="get" resultMap="rewardControlMap" parameterType="map">
+        SELECT * from rewardControl where  rtype=#{rtype} and rid=#{rid}
+    </select>
+</mapper>

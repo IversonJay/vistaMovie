@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SearchValue">
+    <insert id="create" parameterType="String">
+        insert into searchValue (svalue,scount)
+        values
+        (#{svalue},1)
+    </insert>
+
+    <select id="getCount" parameterType="String" resultType="int">
+        SELECT count(*) AS COUNT from searchValue where svalue=#{svalue}
+    </select>
+
+    <update id="addCount" parameterType="String">
+        update searchValue set  scount=scount+1 where svalue=#{svalue}
+    </update>
+
+    <select id="getHots" resultType="String" parameterType="String">
+        SELECT svalue FROM searchValue ORDER BY scount DESC LIMIT 5
+    </select>
+</mapper>

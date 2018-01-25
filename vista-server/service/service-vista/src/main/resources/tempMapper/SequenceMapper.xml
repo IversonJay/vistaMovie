@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Sequence">
+    <resultMap id="sequenceMap" type="Sequence">
+        <result property="mid" column="mid"/>
+        <result property="idx" column="idx"/>
+        <result property="type" column="type"/>
+        <result property="merge" column="merge"/>
+    </resultMap>
+    <!-- <resultMap id="baseMovieMap" type="BaseMovie">
+        <result property="mid" column="mid"/>
+        <result property="mname" column="mname"/>
+        <result property="synopsis" column="synopsis"/>
+        <result property="cinemaCount" column="cinemaCount"/>
+        <result property="openingDate" column="openingDate"/>
+        <result property="hOFilmCode" column="hOFilmCode"/>
+        <result property="performer" column="performer"/>
+        <result property="director" column="director"/>
+    </resultMap>
+
+    <resultMap id="cinemaMovieMap" type="CinemaMovie">
+        <result property="mid" column="mid"/>
+        <result property="mname" column="mname"/>
+        <result property="runTime" column="runTime"/>
+        <result property="mtype" column="mtype"/>
+        <result property="hOFilmCode" column="hOFilmCode"/>
+    </resultMap> -->
+
+    <select id="getAll" resultType="String" parameterType="int">
+        select * from sequence where type = #{type}
+    </select>
+    
+    <insert id="insert" parameterType="Sequence">
+    	insert into sequence(mid, type, merge)
+        values (#{mid}, #{type}, #{merge})
+    </insert>
+    
+    <delete id="del" parameterType="map">
+    	delete from sequence where type = #{type} and mid in 
+    	<foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+    		#{item}
+    	</foreach>
+    </delete>
+
+	<update id="editSequence" parameterType="map">
+		update sequence set idx = #{idx} where merge = (select s1.merge from (select merge from sequence where mid = #{mid}) as s1)
+	</update>
+	
+	<update id="mergeMovie" parameterType="String">
+		update sequence set merge = (select unix_timestamp(now())) where mid in
+		<foreach collection="array" item="mid" index="index" open="(" close=")" separator=","> 
+  			#{mid}
+  		</foreach>
+	</update>
+	
+	<update id="recoverMovie" parameterType="String">
+		update sequence set merge = mid where merge = (select s1.merge from (select merge from sequence where mid = #{mid}) as s1)
+	</update>
+	
+	<select id="getAllMovie" resultType="Sequence">
+		select *,(select mname from movie where mid = sequence.mid) as mname from sequence GROUP BY merge
+	</select>
+	
+</mapper>

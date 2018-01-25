@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Statistics">
+    <resultMap id="statisticsMap" type="Statistics">
+        <result property="id" column="id"/>
+        <result property="date" column="date"/>
+        <result property="count" column="count"/>
+    </resultMap>
+
+    <select id="getAllPager" resultType="Statistics">
+        select * from statistics order by date desc
+    </select>
+    
+    <insert id="insert" parameterType="Statistics">
+    	insert into statistics(date, count)
+        values (#{date}, #{count})
+    </insert>
+    	
+</mapper>

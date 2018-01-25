@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AppUserOrder">
+    <resultMap id="appUserOrderMap" type="AppUserOrder">
+        <id property="id" column="id"/>
+        <result property="userId" column="userId"/>
+        <result property="orderId" column="orderId"/>
+        <result property="placeNames" column="placeNames"/>
+        <result property="places" column="places"/>
+        <result property="concessionPrice" column="concessionPrice"/>
+
+        <result property="totalPrice" column="totalPrice"/>
+        <result property="ticketPrice" column="ticketPrice"/>
+        <result property="cid" column="cid"/>
+        <result property="sid" column="sid"/>
+        <result property="mid" column="mid"/>
+
+        <result property="cname" column="cname"/>
+        <result property="mname" column="mname"/>
+        <result property="sname" column="sname"/>
+        <result property="stime" column="stime"/>
+        <result property="cadd" column="cadd"/>
+
+        <result property="vistaBookingId" column="vistaBookingId"/>
+        <result property="vistaBookingNumber" column="vistaBookingNumber"/>
+        <result property="concessionNames" column="concessionNames"/>
+        <result property="concessions" column="concessions"/>
+        <result property="mphone" column="mphone"/>
+
+
+        <result property="state" column="state"/>
+        <result property="createTime" column="createTime"/>
+        <result property="createDate" column="createDate"/>
+        <result property="modifyDate" column="modifyDate"/>
+    </resultMap>
+
+    <resultMap id="baseUserOrderMap" type="BaseUserOrder">
+        <id property="id" column="id"/>
+        <result property="placeNames" column="placeNames"/>
+        <result property="concessionNames" column="concessionNames"/>
+
+        <result property="totalPrice" column="totalPrice"/>
+        <result property="cname" column="cname"/>
+        <result property="mname" column="mname"/>
+        <result property="sname" column="sname"/>
+        <result property="stime" column="stime"/>
+        <result property="mid" column="mid"/>
+        <result property="mphone" column="mphone"/>
+        <result property="places" column="places"/>
+
+        <result property="state" column="state"/>
+        <result property="createTime" column="createTime"/>
+    </resultMap>
+
+    <sql id="insert_columns">
+	userId,orderId,placeNames,places,
+	totalPrice,ticketPrice,cid,sid,mid ,
+	cname,mname,sname,stime,cadd,
+	state,createTime,createDate,modifyDate,mphone,concessionNames,concessions,concessionPrice
+	</sql>
+
+    <insert id="create" parameterType="AppUserOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into appUserOrder (<include refid="insert_columns"/>)
+        values
+        (#{userId},#{orderId},#{placeNames},#{places},
+        #{totalPrice},#{ticketPrice},#{cid},#{sid},#{mid},
+        #{cname},#{mname},#{sname},#{stime},#{cadd},
+        #{state},#{createTime},now(),now(),#{mphone},#{concessionNames},#{concessions},#{concessionPrice})
+    </insert>
+
+    <select id="getByOrderId" resultMap="appUserOrderMap" parameterType="String">
+        SELECT * from appUserOrder where orderId=#{orderId}
+    </select>
+
+    <select id="getById" resultMap="appUserOrderMap" parameterType="String">
+        SELECT  *  from appUserOrder where id=#{id}
+    </select>
+
+
+    <update id="update" parameterType="AppUserOrder">
+        update appUserOrder
+        <set>
+            modifyDate=now(),
+            <if test="concessionPrice!=null">concessionPrice=#{concessionPrice},</if>
+            <if test="mphone!=null">mphone=#{mphone},</if>
+            <if test="state!=null">state=#{state},</if>
+            <if test="vistaBookingId!=null">vistaBookingId=#{vistaBookingId},</if>
+            <if test="vistaBookingNumber!=null">vistaBookingNumber=#{vistaBookingNumber},</if>
+            <if test="concessionNames!=null">concessionNames=#{concessionNames},</if>
+            <if test="totalPrice!=null">totalPrice=#{totalPrice},</if>
+            <if test="concessions!=null">concessions=#{concessions},</if>
+        </set>
+        where id=#{id}
+    </update>
+    
+    <update id="updateByMap" parameterType="map">
+    	update appUserOrder
+        <set>
+            modifyDate=now(),
+            <if test="order.id!=null">id=#{order.id},</if>
+            <if test="order.state!=null">state=#{order.state},</if>
+            <if test="order.vistaBookingId!=null">vistaBookingId=#{order.vistaBookingId},</if>
+            <if test="order.vistaBookingNumber!=null">vistaBookingNumber=#{order.vistaBookingNumber},</if>
+        </set>
+        where orderId=#{orderId}
+    </update>
+    
+    <delete id="del" parameterType="int">
+    	delete from appUserOrder where id = #{id}
+    </delete>
+
+    <select id="getAll" resultMap="baseUserOrderMap" parameterType="map">
+        select *  from appUserOrder
+        where userId=#{userId}
+        and state = 3
+        <!-- <if test="otype==1">未放映
+        	((select stime from vista_temp_db.`session` where `session`.sid = appUserOrder.sid) > now())
+        </if>
+        <if test="otype==2">
+        	((select stime from vista_temp_db.`session` where `session`.sid = appUserOrder.sid) < now())
+        </if> -->
+        <!-- <if test="otype==1">
+            and state=3
+        </if>
+        <if test="otype==3">
+            and (state=4 OR state=2 OR (((UNIX_TIMESTAMP(SYSDATE())*1000-15*60*1000) <![CDATA[ >  ]]> createTime) AND
+            state=1))
+        </if>
+        <if test="otype==2">
+            and state=1 and (UNIX_TIMESTAMP(SYSDATE())*1000-15*60*1000) <![CDATA[ <  ]]>createTime
+        </if> -->
+    </select>
+    
+    
+    <select id="selectOrderByStime" parameterType="String" resultMap="appUserOrderMap">
+    	select * from appUserOrder where state = 3 and stime = #{stime}
+    </select>
+</mapper>

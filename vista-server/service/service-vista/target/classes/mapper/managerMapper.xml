@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Manager">
+    <resultMap id="managerMap" type="Manager">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="role" column="role"/>
+        <result property="lastLoginTime" column="lastLoginTime"/>
+        <result property="lastLoginIp" column="lastLoginIp"/>
+        <result property="state" column="state"/>
+        <result property="createDate" column="createDate"/>
+        <result property="modifyDate" column="modifyDate"/>
+    </resultMap>
+
+    <sql id="insert_columns">
+	username,password,role,lastLoginTime,lastLoginIp,state,createDate,modifyDate
+	</sql>
+
+    <sql id="select_columns">
+       id ,username,role,lastLoginTime,lastLoginIp,state,createDate,modifyDate
+    </sql>
+
+    <insert id="create" parameterType="Manager" useGeneratedKeys="true" keyProperty="id">
+        insert into manager (<include refid="insert_columns"/>)
+        values
+        (#{username},#{password},#{role},#{lastLoginTime},#{lastLoginIp},#{state},now(),now())
+    </insert>
+
+
+    <delete id="del" parameterType="long">
+		delete from manager where id=#{id}
+	</delete>
+
+
+    <select id="getById" resultMap="managerMap" parameterType="long">
+        SELECT
+        <include refid="select_columns"/>
+        from manager where id=#{id}
+    </select>
+
+    <select id="getByUserName" resultMap="managerMap" parameterType="string">
+		SELECT * from manager where username=#{username}
+	</select>
+
+    <update id="update" parameterType="Manager">
+        update manager
+        <set>
+            modifyDate=now(),
+            <if test="username!=null">username=#{username},</if>
+            <if test="password!=null">password=#{password},</if>
+            <if test="role!=null">role=#{role},</if>
+            <if test="lastLoginTime!=null">lastLoginTime=#{lastLoginTime},</if>
+            <if test="lastLoginIp!=null">lastLoginIp=#{lastLoginIp},</if>
+            <if test="state!=null">state=#{state}</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="getAll" resultMap="managerMap" parameterType="map">
+        select
+        <include refid="select_columns"/>
+        from manager
+        where role!=-1
+    </select>
+</mapper>

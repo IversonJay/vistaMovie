@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AppUserReward">
+    <resultMap id="appUserRewardMap" type="AppUserReward">
+        <id property="id" column="id"/>
+        <result property="userId" column="userId"/>
+        <result property="buyOrderId" column="buyOrderId"/>
+        <result property="buyTime" column="buyTime"/>
+        <result property="resOrderId" column="resOrderId"/>
+        <result property="resTime" column="resTime"/>
+        <result property="used" column="used"/>
+        <result property="rtype" column="rtype"/>
+        <result property="resName" column="resName"/>
+        <result property="resId" column="resId"/>
+        <result property="resVistaId" column="resVistaId"/>
+        <result property="resSequence" column="resSequence"/>
+        <result property="vistaBookingId" column="vistaBookingId"/>
+
+        <result property="createDate" column="createDate"/>
+        <result property="modifyDate" column="modifyDate"/>
+    </resultMap>
+
+    <sql id="insert_columns">
+	userId,buyOrderId,buyTime,used,rtype,createDate,modifyDate
+	</sql>
+
+    <insert id="create" parameterType="AppUserReward" useGeneratedKeys="true" keyProperty="id">
+        insert into appUserReward (<include refid="insert_columns"/>)
+        values
+        (#{userId},#{buyOrderId},#{buyTime},#{used},#{rtype},now(),now())
+    </insert>
+
+    <select id="getById" resultMap="appUserRewardMap" parameterType="long">
+        SELECT * from appUserReward where id=#{id}
+    </select>
+
+    <update id="update" parameterType="AppUserReward">
+        update appUserReward
+        <set>
+            modifyDate=now(),
+            <if test="buyOrderId!=null">buyOrderId=#{buyOrderId},</if>
+            <if test="buyTime!=null">buyTime=#{buyTime},</if>
+            <if test="resOrderId!=null">resOrderId=#{resOrderId},</if>
+            <if test="resTime!=null">resTime=#{resTime},</if>
+            <if test="used!=null">used=#{used},</if>
+            <if test="resName!=null">resName=#{resName},</if>
+            <if test="resId!=null">resId=#{resId},</if>
+            <if test="resVistaId!=null">resVistaId=#{resVistaId},</if>
+            <if test="resSequence!=null">resSequence=#{resSequence},</if>
+            <if test="vistaBookingId!=null">vistaBookingId=#{vistaBookingId},</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="getAppUserRewardCount" resultType="int" parameterType="map">
+        select count(*) from appUserReward
+        where rtype=#{rtype} and userId=#{userId} and used=0
+    </select>
+
+    <select id="getAppUserRewardToReward" resultMap="appUserRewardMap" parameterType="map">
+        select * from appUserReward
+        where rtype=#{rtype} and userId=#{userId} and used=0 limit 1
+    </select>
+
+    <select id="getAll" resultMap="appUserRewardMap" parameterType="map">
+        select * from appUserReward where userId=#{userId} and used=1
+    </select>
+
+    <select id="getNotUse" resultType="String" parameterType="map">
+        select resId from appUserReward where userId=#{userId} and used=1 and resId is not null and resId!=-9999
+    </select>
+
+</mapper>
